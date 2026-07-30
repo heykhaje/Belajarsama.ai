@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface-base: #0E1116;
+  --color-surface-raised: #171B22;
+  --color-surface-border: #262B35;
+  --color-ink-text: #E7E9EE;
+  --color-ink-muted: #9BA3B4;
+  --color-accent-highlighter: #FFC93C;
+  --color-accent-ink-blue: #7C9CFF;
+  --color-positive: #5FD9A4;
+  --color-danger: #FF6B6B;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.highlight-mark {
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+}
+.highlight-mark::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: 1px;
+  height: 38%;
+  background: linear-gradient(
+    95deg,
+    rgba(255, 201, 60, 0.92) 0%,
+    rgba(255, 201, 60, 0.75) 40%,
+    rgba(255, 201, 60, 0.88) 70%,
+    rgba(255, 201, 60, 0.6) 100%
+  );
+  transform: rotate(-0.8deg);
+  z-index: -1;
+  border-radius: 3px 8px 2px 7px;
+}
+.highlight-mark::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: -2px;
+  bottom: 4px;
+  height: 4px;
+  background: rgba(255, 201, 60, 0.15);
+  transform: rotate(-0.6deg);
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(3px);
+}
+
+.highlight-mark.light::before {
+  opacity: 0.55;
+  height: 32%;
+  bottom: 3px;
+}
+
+.highlight-block {
+  position: relative;
+  z-index: 0;
+}
+.highlight-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    95deg,
+    rgba(255, 201, 60, 0.2) 0%,
+    rgba(255, 201, 60, 0.08) 100%
+  );
+  border-radius: inherit;
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
