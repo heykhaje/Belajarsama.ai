@@ -2,8 +2,20 @@ import Link from 'next/link';
 import { getTodaySchedules, getWeeklyProgress } from '@/app/actions';
 
 export default async function Dashboard() {
-  const todaySchedules = await getTodaySchedules();
-  const weeklyProgress = await getWeeklyProgress();
+  let todaySchedules: any[] = [];
+  let weeklyProgress = { quizCount: 0, avgScore: 0 };
+  
+  try {
+    todaySchedules = await getTodaySchedules() || [];
+  } catch (e) {
+    console.error('[Dashboard] Failed to fetch schedules:', e);
+  }
+  
+  try {
+    weeklyProgress = await getWeeklyProgress();
+  } catch (e) {
+    console.error('[Dashboard] Failed to fetch progress:', e);
+  }
   
   const today = new Date();
   const dateStr = today.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

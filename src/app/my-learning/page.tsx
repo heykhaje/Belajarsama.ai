@@ -10,10 +10,25 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; b
 };
 
 export default async function MyLearning({ searchParams }: { searchParams: { id?: string } }) {
-  const materials = await getAllMaterials();
+  let materials: any[] = [];
+  let summary: any = null;
+  
+  try {
+    materials = await getAllMaterials() || [];
+  } catch (e) {
+    console.error('[MyLearning] Failed to fetch materials:', e);
+  }
+  
   const selectedMaterialId = searchParams.id;
   const selectedMaterial = materials?.find(m => m.id === selectedMaterialId);
-  const summary = selectedMaterialId ? await getMaterialSummary(selectedMaterialId) : null;
+  
+  if (selectedMaterialId) {
+    try {
+      summary = await getMaterialSummary(selectedMaterialId);
+    } catch (e) {
+      console.error('[MyLearning] Failed to fetch summary:', e);
+    }
+  }
 
   return (
     <div className="flex gap-8 h-[calc(100vh-4rem)]">
