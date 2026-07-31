@@ -1,23 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createSchedule, getSchedulesByMonth } from '@/app/actions';
+import { createSchedule, getSchedulesByMonth, completeAndDeleteSchedule } from '@/app/actions';
 
 export default function Schedule() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
-  
-  // States for the calendar view
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth());
-  
   const [schedules, setSchedules] = useState<any[]>([]);
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(true);
-
-  // States for Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
-  const [time, setTime] = useState('');
+  const [scheduleDateTime, setScheduleDateTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentDate(new Date());
@@ -40,7 +36,7 @@ export default function Schedule() {
 
   if (!currentDate) return null;
 
-  const daysStr = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']; // Based on JS getDay() where 0 is Sunday
+  const daysStr = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
   const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
   const handlePrevMonth = () => {
@@ -65,21 +61,14 @@ export default function Schedule() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const [hours, minutes] = time.split(':');
-      // Set to today's date + input time (as requested in MVP)
-      const scheduleDate = new Date();
-      scheduleDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-      
       await createSchedule({
         title,
-        scheduled_at: scheduleDate.toISOString(),
+        scheduled_at: new Date(scheduleDateTime).toISOString(),
       });
       setIsModalOpen(false);
       setTitle('');
-      setTime('');
+      setScheduleDateTime('');
       alert("Jadwal berhasil dibuat!");
-      
-      // Refresh schedules
       const data = await getSchedulesByMonth(viewMonth, viewYear);
       setSchedules(data || []);
     } catch (error: any) {
@@ -89,41 +78,43 @@ export default function Schedule() {
     }
   };
 
-  // Calendar logic
-  const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay(); // 0 (Sun) to 6 (Sat)
+  const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  
   const blanks = Array.from({ length: firstDayOfMonth }).map((_, i) => i);
   const monthDates = Array.from({ length: daysInMonth }).map((_, i) => i + 1);
-
-  // Future events (today or later)
-  const upcomingSchedules = schedules.filter(s => new Date(s.scheduled_at).getTime() >= currentDate.setHours(0,0,0,0));
+  const todayStart = new Date(currentDate);
+  todayStart.setHours(0, 0, 0, 0);
+  const upcomingSchedules = schedules.filter(s => new Date(s.scheduled_at).getTime() >= todayStart.getTime());
 
   return (
     <div className="max-w-4xl mx-auto relative">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-xl font-semibold">Jadwal Belajar</h1>
-          <div className="flex items-center gap-4 mt-2">
-            <button onClick={handlePrevMonth} className="text-ink-muted hover:text-ink-text">&lt;</button>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">Kalender Akademik</span>
+          </div>
+          <h1 className="font-display text-xl font-semibold text-ink-text">Jadwal Belajar</h1>
+          <div className="flex items-center gap-4 mt-3">
+            <button onClick={handlePrevMonth} className="text-ink-muted hover:text-accent-sky transition-colors">&lt;</button>
             <p className="font-mono text-sm uppercase tracking-[0.12em] text-ink-text w-32 text-center">
               {monthNames[viewMonth]} {viewYear}
             </p>
-            <button onClick={handleNextMonth} className="text-ink-muted hover:text-ink-text">&gt;</button>
+            <button onClick={handleNextMonth} className="text-ink-muted hover:text-accent-sky transition-colors">&gt;</button>
           </div>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-accent-ink-blue text-surface-base px-4 py-2 rounded-lg text-sm font-medium hover:opacity-85 transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
+          className="btn-academic"
         >
           + Buat Jadwal
         </button>
       </div>
 
-      <div className="bg-surface-raised border border-surface-border rounded-xl p-5 mb-10">
+      <div className="card-academic p-5 mb-10">
         <div className="grid grid-cols-7 gap-2 mb-2">
           {daysStr.map((day) => (
-            <div key={day} className="text-center font-mono text-[10px] uppercase tracking-wider text-ink-muted">
+            <div key={day} className="text-center font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">
               {day}
             </div>
           ))}
@@ -136,7 +127,6 @@ export default function Schedule() {
             {blanks.map(b => (
               <div key={`blank-${b}`} className="h-16 border border-transparent"></div>
             ))}
-            
             {monthDates.map(dateNum => {
               const dateObj = new Date(viewYear, viewMonth, dateNum);
               const isToday = dateObj.toDateString() === currentDate.toDateString();
@@ -146,16 +136,15 @@ export default function Schedule() {
                 <div 
                   key={dateNum} 
                   className={`relative flex flex-col items-center justify-start rounded-lg border h-16 pt-1 transition-all ${
-                    isToday ? 'border-accent-highlighter/30 bg-accent-highlighter/10' : 'border-surface-border hover:bg-surface-border/30'
+                    isToday ? 'border-accent-sky/30 bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100/60 shadow-sm' : 'border-zinc-200 hover:border-zinc-300'
                   }`}
                 >
-                  <span className={`font-mono text-xs ${isToday ? 'text-accent-highlighter font-medium' : 'text-ink-muted'}`}>
+                  <span className={`font-mono text-xs ${isToday ? 'text-accent-sky font-semibold' : 'text-ink-muted'}`}>
                     {dateNum}
                   </span>
-                  {/* Indicators for schedules */}
                   <div className="flex gap-1 mt-1 flex-wrap justify-center w-full px-1">
                     {daySchedules.map(s => (
-                      <span key={s.id} title={s.title} className="w-1.5 h-1.5 rounded-full bg-accent-ink-blue"></span>
+                      <span key={s.id} title={s.title} className="w-1.5 h-1.5 rounded-full bg-accent-sky/70"></span>
                     ))}
                   </div>
                 </div>
@@ -166,10 +155,8 @@ export default function Schedule() {
       </div>
 
       <div className="flex items-center gap-2 mb-5">
-        <span className="w-1.5 h-1.5 rounded-full bg-accent-ink-blue" />
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">
-          Jadwal Terdekat
-        </h2>
+        <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
+        <span className="academic-divider flex-1" />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -177,20 +164,38 @@ export default function Schedule() {
           upcomingSchedules.map(s => {
             const sDate = new Date(s.scheduled_at);
             return (
-              <div key={s.id} className="flex items-center justify-between p-4 bg-surface-raised border border-surface-border rounded-xl hover:border-accent-highlighter/30 transition-all duration-150">
+              <div key={s.id} className="card-academic flex items-center justify-between p-4">
                 <div className="flex items-center gap-5">
                   <div className="flex flex-col items-center min-w-[4rem]">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">{daysStr[sDate.getDay()]}</span>
-                    <span className="font-mono text-lg font-medium text-ink-text">{sDate.getDate()}</span>
+                    <span className="font-display text-lg font-semibold text-ink-text">{sDate.getDate()}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm text-ink-text">{s.title}</span>
                     <span className="font-mono text-[11px] text-ink-muted mt-0.5">{sDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
-                <span className="font-mono text-[10px] uppercase tracking-wider text-accent-ink-blue bg-accent-ink-blue/10 px-3 py-1 rounded-full">
-                  {s.status === 'done' ? 'Selesai' : 'Akan Datang'}
-                </span>
+                <button
+                  onClick={async () => {
+                    setDeletingId(s.id);
+                    try {
+                      await completeAndDeleteSchedule(s.id);
+                      setSchedules(prev => prev.filter(sch => sch.id !== s.id));
+                    } catch (err: any) {
+                      alert('Gagal menyelesaikan jadwal: ' + err.message);
+                    } finally {
+                      setDeletingId(null);
+                    }
+                  }}
+                  disabled={deletingId === s.id}
+                  className={`flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
+                    deletingId === s.id
+                      ? 'bg-green-100 text-green-600 opacity-50 cursor-wait'
+                      : 'bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 hover:border-green-300 cursor-pointer'
+                  }`}
+                >
+                  {deletingId === s.id ? 'Menghapus...' : '✓ Sudah Selesai'}
+                </button>
               </div>
             )
           })
@@ -199,29 +204,31 @@ export default function Schedule() {
         )}
       </div>
 
-      {/* Modal Buat Jadwal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E1116]/80 backdrop-blur-sm p-4">
-          <div className="bg-surface-raised border border-surface-border rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="font-display text-xl font-semibold mb-6">Buat Jadwal Baru</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+          <div className="bg-surface-raised border border-surface-border rounded-xl p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
+              <h2 className="font-display text-xl font-semibold text-ink-text">Buat Jadwal Baru</h2>
+            </div>
             <form onSubmit={handleCreateSchedule} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm text-ink-muted mb-2">Judul Materi</label>
+                <label className="block text-xs text-ink-muted mb-2 font-medium">Judul Materi</label>
                 <input 
                   type="text" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[#0E1116] border border-surface-border rounded-lg px-4 py-2 text-ink-text focus:outline-none focus:border-accent-ink-blue focus:ring-1 focus:ring-accent-ink-blue"
+                  className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-2.5 text-ink-text text-sm focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/20 transition-all"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm text-ink-muted mb-2">Jam (Hari Ini)</label>
+                <label className="block text-xs text-ink-muted mb-2 font-medium">Tanggal & Jam</label>
                 <input 
-                  type="time" 
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full bg-[#0E1116] border border-surface-border rounded-lg px-4 py-2 text-ink-text focus:outline-none focus:border-accent-ink-blue focus:ring-1 focus:ring-accent-ink-blue"
+                  type="datetime-local" 
+                  value={scheduleDateTime}
+                  onChange={(e) => setScheduleDateTime(e.target.value)}
+                  className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-2.5 text-ink-text text-sm focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/20 transition-all [color-scheme:dark]"
                   required
                 />
               </div>
@@ -229,14 +236,14 @@ export default function Schedule() {
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium border border-surface-border hover:bg-surface-border/30 transition"
+                  className="px-4 py-2 rounded-lg text-sm font-medium border border-surface-border hover:bg-white/5 transition text-ink-text"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="bg-accent-ink-blue text-surface-base px-4 py-2 rounded-lg text-sm font-medium hover:opacity-85 transition disabled:opacity-50"
+                  className="btn-academic disabled:opacity-50"
                 >
                   {isSubmitting ? 'Menyimpan...' : 'Simpan Jadwal'}
                 </button>

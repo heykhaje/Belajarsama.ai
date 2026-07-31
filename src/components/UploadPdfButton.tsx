@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { uploadMaterial, generateSummary } from '@/app/actions';
+import { uploadMaterial } from '@/app/actions';
 
 export default function UploadPdfButton() {
   const [isUploading, setIsUploading] = useState(false);
@@ -27,12 +27,7 @@ export default function UploadPdfButton() {
 
     try {
       const material = await uploadMaterial(formData);
-      
-      // Call summarize automatically
-      await generateSummary(material.id);
-      
-      alert('PDF berhasil diunggah dan otomatis diringkas!');
-      // TODO: refresh list or redirect to summary view
+      window.location.href = `/my-learning?id=${material.id}`;
     } catch (error: any) {
       alert(`Gagal mengunggah: ${error.message}`);
     } finally {
@@ -55,7 +50,7 @@ export default function UploadPdfButton() {
       <button 
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="bg-accent-ink-blue text-surface-base px-3.5 py-1.5 rounded-md text-xs font-medium hover:bg-[#6B8BFF] transition-all duration-150 whitespace-nowrap disabled:opacity-50"
+        className="btn-academic px-3.5 py-1.5 text-xs disabled:opacity-50"
       >
         {isUploading ? 'Mengunggah...' : '+ Tambah PDF'}
       </button>

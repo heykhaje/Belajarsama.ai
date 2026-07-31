@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { submitQuizAttempt } from '@/app/actions';
 
 type Question = {
   question: string;
@@ -23,6 +24,8 @@ export default function QuizSession({
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const currentQuestion = questions[currentIndex];
 
@@ -37,13 +40,30 @@ export default function QuizSession({
     if (selectedOption === currentQuestion.correct_answer_index) setScore(score + 1);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
-      setIsFinished(true);
+      // Quiz selesai — submit skor ke database
+      const finalScore = selectedOption === currentQuestion.correct_answer_index 
+        ? Math.round(((score + 1) / questions.length) * 100)
+        : Math.round((score / questions.length) * 100);
+      
+      setIsSubmitting(true);
+      try {
+        await submitQuizAttempt(materialId, finalScore, {
+          totalQuestions: questions.length,
+          correctAnswers: selectedOption === currentQuestion.correct_answer_index ? score + 1 : score,
+        });
+      } catch (err: any) {
+        console.error('Failed to submit quiz:', err);
+        setSubmitError(err.message);
+      } finally {
+        setIsSubmitting(false);
+        setIsFinished(true);
+      }
     }
   };
 
@@ -55,13 +75,22 @@ export default function QuizSession({
     const pct = Math.round((score / questions.length) * 100);
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="bg-[#171B22] border border-surface-border rounded-lg p-8 w-full max-w-sm text-center">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-4">Selesai</p>
-          <p className="font-mono text-4xl font-semibold text-accent-ink-text mb-2">{pct}</p>
-          <p className="text-ink-muted text-xs mb-6">{score} dari {questions.length} benar</p>
+        <div className="card-academic p-8 w-full max-w-sm text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">Selesai</span>
+          </div>
+          <p className="font-display text-4xl font-semibold text-ink-text mb-2">{pct}</p>
+          <p className="text-ink-muted text-xs mb-2">{score} dari {questions.length} benar</p>
+          {submitError && (
+            <p className="text-red-500 text-xs mb-4">Gagal menyimpan skor: {submitError}</p>
+          )}
+          {!submitError && (
+            <p className="text-positive text-xs mb-4">Skor berhasil disimpan ✓</p>
+          )}
           <button
             onClick={handleFinish}
-            className="bg-accent-ink-blue text-surface-base px-5 py-2 rounded-md text-xs font-medium hover:bg-[#6B8BFF] transition-all duration-150"
+            className="btn-academic"
           >
             Kembali ke My Learning
           </button>
@@ -73,24 +102,24 @@ export default function QuizSession({
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-5">
-        <span className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
+        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">
           Soal {currentIndex + 1} / {questions.length}
         </span>
         <span className="font-mono text-[10px] text-ink-muted">
-          Skor: <span className="text-accent-ink-blue">{score}</span>
+          Skor: <span className="text-accent-sky font-semibold">{score}</span>
         </span>
       </div>
 
-      <div className="bg-[#171B22] border border-surface-border rounded-lg p-6 mb-5">
-        <p className="text-sm font-medium leading-relaxed mb-6">{currentQuestion.question}</p>
+      <div className="card-academic p-6 mb-5">
+        <p className="text-sm font-display font-semibold leading-relaxed mb-6 text-ink-text">{currentQuestion.question}</p>
 
         <div className="flex flex-col gap-2">
           {currentQuestion.options.map((opt, idx) => {
             const isSelected = selectedOption === idx;
             const isCorrect = idx === currentQuestion.correct_answer_index;
 
-            let borderClass = 'border-surface-border hover:border-ink-muted/40';
-            let bgClass = 'bg-transparent';
+            let borderClass = 'border-surface-border hover:border-zinc-500';
+            let bgClass = 'bg-surface-raised';
             let labelClass = 'text-ink-text';
 
             if (isAnswered) {
@@ -102,19 +131,19 @@ export default function QuizSession({
                 bgClass = 'bg-danger/10';
               } else {
                 borderClass = 'border-surface-border';
-                bgClass = 'bg-transparent';
+                bgClass = 'bg-surface-raised';
                 labelClass = 'text-ink-muted/50';
               }
             } else if (isSelected) {
-              borderClass = 'border-accent-ink-blue';
-              bgClass = 'bg-accent-ink-blue/10';
+              borderClass = 'border-accent-sky';
+              bgClass = 'bg-accent-soft';
             }
 
             return (
               <button
                 key={idx}
                 onClick={() => handleSelect(idx)}
-                className={`text-left px-4 py-3 rounded-md border transition-all duration-150 ${borderClass} ${bgClass}`}
+                className={`text-left px-4 py-3 rounded-md border transition-all duration-150 ${borderClass} ${bgClass} shadow-sm`}
                 disabled={isAnswered}
               >
                 <div className="flex items-start gap-3">
@@ -135,7 +164,7 @@ export default function QuizSession({
             ? 'bg-positive/10 border-positive'
             : 'bg-danger/10 border-danger'
         }`}>
-          <p className={`font-mono text-[10px] uppercase tracking-wider mb-1 ${
+          <p className={`font-mono text-[10px] uppercase tracking-[0.15em] mb-1 ${
             selectedOption === currentQuestion.correct_answer_index ? 'text-positive' : 'text-danger'
           }`}>
             {selectedOption === currentQuestion.correct_answer_index ? 'Benar' : 'Belum Tepat'}
@@ -149,14 +178,14 @@ export default function QuizSession({
           <button
             onClick={handleSubmitAnswer}
             disabled={selectedOption === null}
-            className="bg-accent-ink-blue text-surface-base px-6 py-2 rounded-md text-xs font-medium hover:bg-[#6B8BFF] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-academic disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Jawab
           </button>
         ) : (
           <button
             onClick={handleNext}
-            className="bg-accent-ink-blue text-surface-base px-6 py-2 rounded-md text-xs font-medium hover:bg-[#6B8BFF] transition-all duration-150"
+            className="btn-academic"
           >
             {currentIndex < questions.length - 1 ? 'Selanjutnya' : 'Lihat Hasil'}
           </button>

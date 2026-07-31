@@ -1,20 +1,23 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme inline {
-  --color-surface-base: #0E1116;
-  --color-surface-raised: #171B22;
-  --color-surface-border: #262B35;
-  --color-ink-text: #E7E9EE;
-  --color-ink-muted: #9BA3B4;
-  --color-accent-highlighter: #FFC93C;
-  --color-accent-ink-blue: #7C9CFF;
-  --color-positive: #5FD9A4;
-  --color-danger: #FF6B6B;
+  --color-surface-base: #1C1C1C;
+  --color-surface-raised: #232323;
+  --color-surface-border: #3E3E3E;
+  --color-ink-text: #EDEDED;
+  --color-ink-muted: #8B8B8B;
+  --color-accent-sky: #3ECF8E;
+  --color-accent-soft: rgba(62, 207, 142, 0.1);
+  --color-positive: #3ECF8E;
+  --color-danger: #F56565;
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-display: 'Crimson Pro', serif;
+  --font-body: 'Source Sans 3', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 }
+
+/* ── Highlight mark (sky blue for light mode) ── */
 
 .highlight-mark {
   position: relative;
@@ -30,10 +33,10 @@
   height: 38%;
   background: linear-gradient(
     95deg,
-    rgba(255, 201, 60, 0.92) 0%,
-    rgba(255, 201, 60, 0.75) 40%,
-    rgba(255, 201, 60, 0.88) 70%,
-    rgba(255, 201, 60, 0.6) 100%
+    color-mix(in srgb, var(--color-accent-sky) 16%, transparent) 0%,
+    color-mix(in srgb, var(--color-accent-sky) 10%, transparent) 40%,
+    color-mix(in srgb, var(--color-accent-sky) 14%, transparent) 70%,
+    color-mix(in srgb, var(--color-accent-sky) 8%, transparent) 100%
   );
   transform: rotate(-0.8deg);
   z-index: -1;
@@ -46,7 +49,7 @@
   right: -2px;
   bottom: 4px;
   height: 4px;
-  background: rgba(255, 201, 60, 0.15);
+  background: color-mix(in srgb, var(--color-accent-sky) 8%, transparent);
   transform: rotate(-0.6deg);
   z-index: -1;
   border-radius: 50%;
@@ -69,11 +72,176 @@
   inset: 0;
   background: linear-gradient(
     95deg,
-    rgba(255, 201, 60, 0.2) 0%,
-    rgba(255, 201, 60, 0.08) 100%
+    color-mix(in srgb, var(--color-accent-sky) 8%, transparent) 0%,
+    color-mix(in srgb, var(--color-accent-sky) 3%, transparent) 100%
   );
   border-radius: inherit;
   z-index: -1;
+}
+
+/* ── Academic refinements ── */
+
+.drop-cap::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.2em;
+  font-weight: 700;
+  float: left;
+  line-height: 0.85;
+  margin-right: 0.4rem;
+  margin-top: 0.1rem;
+  color: var(--color-accent-sky);
+}
+
+.academic-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-accent-sky);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.academic-divider::before,
+.academic-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-surface-border), transparent);
+}
+
+.card-academic {
+  position: relative;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 200ms ease;
+}
+.card-academic:hover {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05),
+              0 4px 12px rgba(2, 132, 199, 0.06);
+  border-color: color-mix(in srgb, var(--color-accent-sky) 20%, var(--color-surface-border));
+}
+
+.btn-academic {
+  background: var(--color-accent-sky);
+  color: #1C1C1C;
+  font-weight: 600;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+.btn-academic:hover {
+  background: #24B47E;
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 8px rgba(62, 207, 142, 0.25);
+}
+
+.btn-academic-outline {
+  background: transparent;
+  color: var(--color-accent-sky);
+  border: 1px solid var(--color-surface-border);
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+.btn-academic-outline:hover {
+  border-color: var(--color-accent-sky);
+  background: var(--color-accent-soft);
+}
+
+.section-number {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ── Thinking tag accordion ── */
+
+.thinking-accordion {
+  border: 1px solid var(--color-surface-border);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background: var(--color-surface-base);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+.thinking-accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface-raised);
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-ink-muted);
+  text-align: left;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.thinking-accordion-trigger:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-sky);
+}
+
+.thinking-accordion-chevron {
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+  color: var(--color-ink-muted);
+}
+
+.thinking-accordion-trigger[data-state="open"] .thinking-accordion-chevron {
+  transform: rotate(180deg);
+  color: var(--color-accent-sky);
+}
+
+.thinking-accordion-content {
+  padding: 0.75rem 0.875rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+  background: var(--color-surface-base);
+  border-top: 1px solid var(--color-surface-border);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.thinking-accordion-content p {
+  margin: 0 0 0.5rem;
+}
+.thinking-accordion-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5A5A5A;
 }
 
 @media (prefers-reduced-motion: reduce) {

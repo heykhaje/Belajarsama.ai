@@ -1,7 +1,8 @@
 'use server'
 
 import { supabase } from '@/lib/supabase/client';
-import { generateSummary as geminiSummary, generateQuiz as geminiQuiz } from '@/lib/ai/gemini';
+import { generateQuiz as geminiQuiz } from '@/lib/ai/gemini';
+import { generateSummary as groqSummary } from '@/lib/ai/groq';
 import { revalidatePath } from 'next/cache';
 
 // Workaround for pdf-parse no default export error (moved inside function to avoid DOMMatrix error)
@@ -55,11 +56,49 @@ export async function uploadMaterial(formData: FormData) {
   return material;
 }
 
+export async function deleteMaterial(materialId: string) {
+  // 1. Dapatkan info materi untuk mengambil nama file di storage
+  const { data: material, error: fetchError } = await supabase
+    .from('materials')
+    .select('pdf_url')
+    .eq('id', materialId)
+    .single();
+
+  if (fetchError) throw new Error("Gagal mengambil data materi: " + fetchError.message);
+
+  // 2. Hapus file dari Storage (jika ada pdf_url)
+  if (material?.pdf_url) {
+    const urlParts = material.pdf_url.split('/');
+    const fileName = urlParts[urlParts.length - 1]; // Mengambil bagian akhir URL (nama file)
+    
+    if (fileName) {
+      const { error: storageError } = await supabase.storage
+        .from('materials')
+        .remove([fileName]);
+        
+      if (storageError) {
+        console.error("Gagal menghapus file dari storage:", storageError);
+        // Kita tidak throw error di sini agar record di database tetap bisa terhapus
+      }
+    }
+  }
+
+  // 3. Hapus data dari Database (Ini otomatis akan menghapus summary & quiz terkait berkat ON DELETE CASCADE yang diatur di Supabase / schema)
+  const { error: dbError } = await supabase
+    .from('materials')
+    .delete()
+    .eq('id', materialId);
+
+  if (dbError) throw new Error("Gagal menghapus materi dari database: " + dbError.message);
+
+  revalidatePath('/my-learning');
+}
+
 export async function generateSummary(materialId: string) {
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
-  const summaryData = await geminiSummary(material.extracted_text);
+  const summaryData = await groqSummary(material.extracted_text);
 
   const { error: summaryError } = await supabase
     .from('material_summaries')
@@ -146,13 +185,13 @@ export async function getTodaySchedules() {
   return data;
 }
 
-export async function markScheduleDone(scheduleId: string) {
+export async function completeAndDeleteSchedule(scheduleId: string) {
   const { error } = await supabase
     .from('schedules')
-    .update({ status: 'done' })
+    .delete()
     .eq('id', scheduleId);
     
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("Gagal menghapus jadwal: " + error.message);
   revalidatePath('/schedule');
   return true;
 }

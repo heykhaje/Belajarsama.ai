@@ -50,3 +50,18 @@ CREATE TABLE schedules (
 
 -- Note: RLS (Row Level Security) policies should be added here to restrict access based on user_id 
 -- if you plan to use Supabase Auth securely. For now, this is the basic schema.
+
+-- ==========================================
+-- STORAGE BUCKET SETUP
+-- ==========================================
+-- Create the 'materials' bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('materials', 'materials', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Set up RLS policies to allow anyone to upload, read, and delete from this bucket
+-- (This is for MVP/development. In production, restrict this to authenticated users only)
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'materials');
+CREATE POLICY "Public Uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'materials');
+CREATE POLICY "Public Deletes" ON storage.objects FOR DELETE USING (bucket_id = 'materials');
+CREATE POLICY "Public Updates" ON storage.objects FOR UPDATE USING (bucket_id = 'materials');
