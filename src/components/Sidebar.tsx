@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, GraduationCap, Settings, LogOut, User, Heart, Edit2, Check, Camera } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, Settings, LogOut, User, Heart, Edit2, Check, Camera } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase/client';
@@ -71,7 +72,7 @@ export default function Sidebar() {
     setIsSavingProfile(true);
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = async () => {
         const canvas = document.createElement('canvas');
         const maxSize = 150;
@@ -115,8 +116,9 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Desktop Sidebar */}
       <motion.nav
-        className="fixed left-0 top-0 h-full bg-surface-raised border-r border-surface-border flex flex-col z-40 overflow-hidden select-none"
+        className="hidden md:flex fixed left-0 top-0 h-full bg-surface-raised border-r border-surface-border flex-col z-40 overflow-hidden select-none"
         animate={{ width: isHovered ? 240 : 56 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         onMouseEnter={() => setIsHovered(true)}
@@ -125,8 +127,8 @@ export default function Sidebar() {
         <div className="flex flex-col h-full w-full">
           {/* Logo Section */}
           <div className="flex items-center gap-3 px-4 pt-6 pb-6 min-w-[240px]">
-            <div className="w-8 h-8 rounded-md bg-accent-sky flex-shrink-0 flex items-center justify-center">
-              <GraduationCap size={16} className="text-surface-base" />
+            <div className="w-[33px] h-[33px] flex-shrink-0 flex items-center justify-center">
+              <Image src="/logo-app.png" alt="Belajarsama.ai Logo" width={33} height={33} className="object-contain" />
             </div>
             <AnimatePresence>
               {isHovered && (
@@ -299,8 +301,8 @@ export default function Sidebar() {
                       <User size={40} className="text-accent-sky/60" />
                     )}
                   </div>
-                  <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <Camera size={20} className="text-white" />
+                  <div className="absolute inset-0 rounded-full bg-black/30 group-hover:bg-black/50 flex items-center justify-center transition-colors">
+                    <Camera size={24} className="text-white/90 group-hover:text-white transition-colors" />
                   </div>
                 </div>
 
@@ -358,6 +360,41 @@ export default function Sidebar() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-raised border-t border-surface-border z-50 flex justify-around items-center px-2 pb-[env(safe-area-inset-bottom)] h-16">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+                isActive ? 'text-accent-sky' : 'text-ink-muted hover:text-ink-text'
+              }`}
+            >
+              <div className={`p-1 rounded-full ${isActive ? 'bg-accent-sky/10' : 'bg-transparent'}`}>
+                <Icon size={20} />
+              </div>
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex flex-col items-center justify-center w-full h-full space-y-1 text-ink-muted hover:text-ink-text"
+        >
+          <div className="p-1 rounded-full bg-transparent">
+            {userProfile?.user_metadata?.avatar_url ? (
+              <img src={userProfile.user_metadata.avatar_url} alt="Profile" className="w-5 h-5 rounded-full object-cover" />
+            ) : (
+              <User size={20} />
+            )}
+          </div>
+          <span className="text-[10px] font-medium">Profile</span>
+        </button>
+      </nav>
     </>
   );
 }

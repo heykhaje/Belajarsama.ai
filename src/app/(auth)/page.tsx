@@ -83,7 +83,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      setError(error.message || 'Pengiriman gagal. Jika Anda memakai Resend gratis, pastikan email tujuan sama dengan email akun Resend Anda!');
     } else {
       setIsOtpSent(true);
     }
@@ -272,38 +272,26 @@ export default function LoginPage() {
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div className="space-y-6 bg-surface-raised border border-surface-border rounded-xl p-6 text-center animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-accent-sky/10 text-accent-sky rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
                 <div>
-                  <label htmlFor="otp" className="block text-sm font-medium text-ink-muted mb-1.5">Enter access code</label>
-                  <input
-                    id="otp"
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="12345678"
-                    required
-                    maxLength={10}
-                    className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-3 text-ink-text text-center text-xl tracking-widest font-mono focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/30 transition-all placeholder:text-ink-muted/30"
-                  />
-                  <p className="text-[11px] text-ink-muted mt-2 text-center">
-                    We sent a code to <span className="text-ink-text font-medium">{email}</span>
+                  <h3 className="text-lg font-medium text-ink-text mb-2">Cek Email Anda!</h3>
+                  <p className="text-sm text-ink-muted leading-relaxed">
+                    Kami telah mengirimkan tautan masuk ke <span className="text-ink-text font-medium">{email}</span>. Silakan klik tautan tersebut untuk melanjutkan.
                   </p>
                 </div>
                 <button
-                  type="submit"
-                  disabled={isLoading || otp.length < 6}
-                  className="w-full btn-academic py-3 flex justify-center items-center"
-                >
-                  {isLoading ? 'Verifying...' : 'Verify Code'}
-                </button>
-                <button
                   type="button"
-                  onClick={() => { setIsOtpSent(false); setOtp(''); setError(null); }}
-                  className="w-full text-xs text-ink-muted hover:text-ink-text transition-colors mt-2"
+                  onClick={() => { setIsOtpSent(false); setError(null); }}
+                  className="w-full text-sm text-ink-muted hover:text-ink-text transition-colors mt-2"
                 >
-                  Back to email
+                  Kembali atau gunakan email lain
                 </button>
-              </form>
+              </div>
             )}
           </div>
           

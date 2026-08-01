@@ -4,7 +4,7 @@ import Link from 'next/link';
 import StreamingSummary from '@/components/StreamingSummary';
 import DeleteMaterialButton from '@/components/DeleteMaterialButton';
 import MaterialStatePreserver from './MaterialStatePreserver';
-import { GraduationCap } from 'lucide-react';
+import Image from 'next/image';
 import { Suspense } from 'react';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -36,12 +36,13 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
   }
 
   return (
-    <div className="flex gap-8 h-[calc(100vh-4rem)]">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-8 h-[calc(100vh-4rem)]">
       <Suspense fallback={null}>
         <MaterialStatePreserver defaultId={materials?.[0]?.id} />
       </Suspense>
       
-      <div className="w-80 flex flex-col gap-3 overflow-y-auto pr-4 border-r border-surface-border shrink-0">
+      {/* List Pane - hidden on mobile if a material is selected */}
+      <div className={`w-full md:w-80 flex-col gap-3 overflow-y-auto md:pr-4 md:border-r border-surface-border shrink-0 ${selectedMaterial ? 'hidden md:flex' : 'flex'}`}>
         <div className="flex items-center justify-between mb-3">
           <h1 className="font-display text-lg font-semibold text-ink-text">My Learning</h1>
           <UploadPdfButton />
@@ -74,12 +75,16 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
         )}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-surface-raised border border-surface-border rounded-xl shadow-sm">
+      {/* Detail Pane - hidden on mobile if NO material is selected */}
+      <div className={`flex-1 flex-col items-center justify-center p-4 md:p-8 bg-surface-raised border border-surface-border rounded-xl shadow-sm overflow-hidden ${selectedMaterial ? 'flex' : 'hidden md:flex'}`}>
         {selectedMaterial ? (
-          <div className="w-full max-w-2xl h-full flex flex-col">
-            <div className="flex justify-between items-center mb-6">
+          <div className="w-full max-w-2xl h-full flex flex-col min-h-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Link href="/my-learning" className="md:hidden p-1 -ml-1 text-ink-muted hover:text-ink-text hover:bg-white/5 rounded-md transition-colors mr-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  </Link>
                   <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">Materi</span>
                 </div>
@@ -135,7 +140,7 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 text-ink-muted">
-            <GraduationCap size={32} className="opacity-30" />
+            <Image src="/logo-app.png" alt="Belajarsama.ai" width={80} height={80} className="opacity-30 object-contain" />
             <p className="text-sm">Pilih materi untuk melihat ringkasan</p>
           </div>
         )}

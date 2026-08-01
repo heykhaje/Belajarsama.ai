@@ -1,17 +1,21 @@
 'use server'
 
-import { supabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 import { generateQuiz as geminiQuiz } from '@/lib/ai/gemini';
 import { generateSummary as groqSummary } from '@/lib/ai/groq';
 import { revalidatePath } from 'next/cache';
 
-// Workaround for pdf-parse no default export error (moved inside function to avoid DOMMatrix error)
-
-// Note: To simplify MVP, we are assuming a single default user ID.
-// In a real app, you would get this from Supabase Auth session.
-const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000'; // Replace with an actual UUID from your DB or handle auth properly
+async function getAuth() {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) {
+    throw new Error("Unauthorized");
+  }
+  return { supabase, user };
+}
 
 export async function uploadMaterial(formData: FormData) {
+  const { supabase, user } = await getAuth();
   const file = formData.get('file') as File;
   if (!file) throw new Error("File tidak ditemukan");
 
@@ -26,7 +30,7 @@ export async function uploadMaterial(formData: FormData) {
     throw new Error("Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar.");
   }
 
-  // 2. Upload to Supabase Storage (optional, but requested in PRD)
+  // 2. Upload to Supabase Storage
   const fileName = `${Date.now()}-${file.name}`;
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('materials')
@@ -41,7 +45,7 @@ export async function uploadMaterial(formData: FormData) {
   const { data: material, error: dbError } = await supabase
     .from('materials')
     .insert({
-      user_id: DEFAULT_USER_ID,
+      user_id: user.id,
       title: file.name.replace('.pdf', ''),
       pdf_url: pdfUrl,
       extracted_text: extractedText,
@@ -57,6 +61,7 @@ export async function uploadMaterial(formData: FormData) {
 }
 
 export async function deleteMaterial(materialId: string) {
+  const { supabase } = await getAuth();
   // 1. Dapatkan info materi untuk mengambil nama file di storage
   const { data: material, error: fetchError } = await supabase
     .from('materials')
@@ -78,12 +83,11 @@ export async function deleteMaterial(materialId: string) {
         
       if (storageError) {
         console.error("Gagal menghapus file dari storage:", storageError);
-        // Kita tidak throw error di sini agar record di database tetap bisa terhapus
       }
     }
   }
 
-  // 3. Hapus data dari Database (Ini otomatis akan menghapus summary & quiz terkait berkat ON DELETE CASCADE yang diatur di Supabase / schema)
+  // 3. Hapus data dari Database
   const { error: dbError } = await supabase
     .from('materials')
     .delete()
@@ -95,6 +99,7 @@ export async function deleteMaterial(materialId: string) {
 }
 
 export async function generateSummary(materialId: string) {
+  const { supabase } = await getAuth();
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
@@ -116,6 +121,7 @@ export async function generateSummary(materialId: string) {
 }
 
 export async function generateQuiz(materialId: string) {
+  const { supabase } = await getAuth();
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
@@ -136,11 +142,12 @@ export async function generateQuiz(materialId: string) {
 }
 
 export async function submitQuizAttempt(materialId: string, score: number, answersJson: any) {
+  const { supabase, user } = await getAuth();
   const { error } = await supabase
     .from('quiz_attempts')
     .insert({
       material_id: materialId,
-      user_id: DEFAULT_USER_ID,
+      user_id: user.id,
       score,
       answers_json: answersJson
     });
@@ -155,10 +162,11 @@ export async function submitQuizAttempt(materialId: string, score: number, answe
 }
 
 export async function createSchedule(data: { title: string, scheduled_at: string, linked_material_id?: string, recurring?: string }) {
+  const { supabase, user } = await getAuth();
   const { error } = await supabase
     .from('schedules')
     .insert({
-      user_id: DEFAULT_USER_ID,
+      user_id: user.id,
       ...data
     });
 
@@ -168,6 +176,7 @@ export async function createSchedule(data: { title: string, scheduled_at: string
 }
 
 export async function getTodaySchedules() {
+  const { supabase, user } = await getAuth();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -176,7 +185,7 @@ export async function getTodaySchedules() {
   const { data, error } = await supabase
     .from('schedules')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID)
+    .eq('user_id', user.id)
     .gte('scheduled_at', today.toISOString())
     .lt('scheduled_at', tomorrow.toISOString())
     .order('scheduled_at', { ascending: true });
@@ -186,6 +195,7 @@ export async function getTodaySchedules() {
 }
 
 export async function completeAndDeleteSchedule(scheduleId: string) {
+  const { supabase } = await getAuth();
   const { error } = await supabase
     .from('schedules')
     .delete()
@@ -197,16 +207,18 @@ export async function completeAndDeleteSchedule(scheduleId: string) {
 }
 
 export async function getAllMaterials() {
+  const { supabase, user } = await getAuth();
   const { data, error } = await supabase
     .from('materials')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID)
+    .eq('user_id', user.id)
     .order('uploaded_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data;
 }
 
 export async function getMaterialSummary(materialId: string) {
+  const { supabase } = await getAuth();
   const { data, error } = await supabase
     .from('material_summaries')
     .select('*')
@@ -218,6 +230,7 @@ export async function getMaterialSummary(materialId: string) {
 }
 
 export async function getWeeklyProgress() {
+  const { supabase, user } = await getAuth();
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
@@ -225,7 +238,7 @@ export async function getWeeklyProgress() {
   const { data, error } = await supabase
     .from('quiz_attempts')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID)
+    .eq('user_id', user.id)
     .gte('completed_at', startOfWeek.toISOString());
     
   if (error) return { quizCount: 0, avgScore: 0 };
@@ -236,13 +249,14 @@ export async function getWeeklyProgress() {
 }
 
 export async function getSchedulesByMonth(month: number, year: number) {
+  const { supabase, user } = await getAuth();
   const startDate = new Date(year, month, 1);
   const endDate = new Date(year, month + 1, 0, 23, 59, 59);
   
   const { data, error } = await supabase
     .from('schedules')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID)
+    .eq('user_id', user.id)
     .gte('scheduled_at', startDate.toISOString())
     .lte('scheduled_at', endDate.toISOString())
     .order('scheduled_at', { ascending: true });
@@ -252,10 +266,11 @@ export async function getSchedulesByMonth(month: number, year: number) {
 }
 
 export async function getAnalyticsData() {
+  const { supabase, user } = await getAuth();
   const { data: attempts, error } = await supabase
     .from('quiz_attempts')
     .select('*, materials(title)')
-    .eq('user_id', DEFAULT_USER_ID)
+    .eq('user_id', user.id)
     .order('completed_at', { ascending: true });
     
   if (error) return { lineData: [], barData: [], stats: { avgScore: 0, totalQuiz: 0, bestMaterial: '-' } };
