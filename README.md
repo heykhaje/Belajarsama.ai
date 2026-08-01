@@ -27,7 +27,7 @@ Dalam era informasi yang serba cepat, pelajar dan profesional sering kali dihada
 | Fitur | Deskripsi |
 |-------|-----------|
 | 📄 **Smart PDF Extraction** | Unggah file PDF dan sistem akan mengekstrak teks secara otomatis dengan akurasi tinggi. |
-| 🤖 **AI Summarization** | Ringkasan instan bertenaga Google Gemini API (Real-time Streaming). |
+| 🤖 **AI Summarization** | Ringkasan instan bertenaga AI dengan kecepatan tinggi (Google Gemini & Groq API). |
 | 📝 **Adaptive Quiz** | Kuis pilihan ganda yang di-generate oleh AI untuk menguji pemahaman materi. |
 | 📅 **Interactive Schedule** | Kalender belajar untuk manajemen waktu dan kedisiplinan (Tracking). |
 | 📊 **Analytics Dashboard** | Visualisasi performa kuis dan progres belajar menggunakan grafik (Recharts). |
@@ -39,7 +39,7 @@ Dalam era informasi yang serba cepat, pelajar dan profesional sering kali dihada
 
 - **Frontend:** Next.js 16 (App Router), TypeScript, Tailwind CSS, Framer Motion
 - **Backend:** Supabase (PostgreSQL, Storage, Authentication)
-- **AI Engine:** Google Gemini API (`@google/genai`)
+- **AI Engine:** Google Gemini API (`@google/genai`) & Groq API (`groq-sdk`)
 - **Data Visualization:** Recharts
 - **Markdown & Code:** React Markdown
 
@@ -53,6 +53,7 @@ Dalam era informasi yang serba cepat, pelajar dan profesional sering kali dihada
 - npm ≥ 9
 - Akun [Supabase](https://supabase.com/)
 - [Google AI Studio API Key](https://aistudio.google.com/apikey)
+- [Groq API Key](https://console.groq.com/keys)
 
 ### 1. Clone Repository
 
@@ -70,6 +71,7 @@ Buat file `.env.local` di root folder dan masukkan kredensial Anda:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 GEMINI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ### 3. Setup Database (Supabase)
@@ -103,6 +105,7 @@ src/
 ├── components/               # Reusable UI Components
 ├── lib/
 │   ├── ai/gemini.ts          # Gemini API Integration
+│   ├── ai/groq.ts            # Groq API Integration
 │   └── supabase/client.ts    # Supabase Client
 supabase/
 └── schema.sql                # Database Schema
