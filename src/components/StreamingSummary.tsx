@@ -216,7 +216,7 @@ export default function StreamingSummary({
         </div>
       )}
 
-      <div className="prose prose-zinc prose-p:text-ink-muted prose-headings:text-ink-text max-w-none break-words overflow-x-hidden prose-pre:max-w-[85vw] sm:prose-pre:max-w-full prose-pre:overflow-x-auto overflow-y-auto pr-4 pb-20">
+      <div className="prose prose-zinc prose-p:text-ink-muted prose-headings:text-ink-text prose-strong:text-white max-w-none break-words overflow-x-hidden prose-pre:max-w-[85vw] sm:prose-pre:max-w-full prose-pre:overflow-x-auto overflow-y-auto pr-4 pb-20">
         {error && (
           <div className="bg-danger/10 p-4 rounded-lg mb-4 border border-danger/30 flex flex-col gap-3">
             <p className="text-danger text-sm font-medium">Gagal membuat ringkasan: {error.message}</p>
@@ -246,7 +246,7 @@ export default function StreamingSummary({
         {parsed.visible ? (
           <>
             <ThinkingAccordion blocks={parsed.thinkingBlocks} />
-            <div className="prose prose-zinc prose-p:font-display prose-p:text-ink-muted prose-headings:font-display prose-headings:text-ink-text max-w-none break-words overflow-x-hidden prose-pre:max-w-[85vw] sm:prose-pre:max-w-full prose-pre:overflow-x-auto">
+            <div className="prose prose-zinc prose-p:font-display prose-p:text-ink-muted prose-headings:font-display prose-headings:text-ink-text prose-strong:text-white max-w-none break-words overflow-x-hidden prose-pre:max-w-[85vw] sm:prose-pre:max-w-full prose-pre:overflow-x-auto">
               <ReactMarkdown>{parsed.visible}</ReactMarkdown>
             </div>
           </>
