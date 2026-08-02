@@ -7,7 +7,8 @@ import { submitQuizAttempt } from '@/app/actions';
 type Question = {
   question: string;
   options: string[];
-  correct_answer_index: number;
+  correct_answer_index?: number;
+  correctAnswer?: number;
   explanation: string;
 };
 
