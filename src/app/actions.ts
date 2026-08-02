@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server';
-import { generateQuiz as groqQuiz } from '@/lib/ai/groq';
+import { generateQuiz as geminiQuiz } from '@/lib/ai/gemini';
 import { revalidatePath } from 'next/cache';
 
 async function getAuth() {
@@ -116,7 +116,7 @@ export async function generateQuiz(materialId: string) {
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
-  const quizData = await groqQuiz(material.extracted_text);
+  const quizData = await geminiQuiz(material.extracted_text);
 
   const { data: quiz, error: quizError } = await supabase
     .from('quizzes')
