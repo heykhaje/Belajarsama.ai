@@ -47,7 +47,8 @@ export default function QuizSession({
       setIsAnswered(false);
     } else {
       // Quiz selesai — submit skor ke database
-      const finalScore = selectedOption === currentQuestion.correct_answer_index 
+      const isActuallyCorrect = selectedOption === (currentQuestion.correctAnswer ?? currentQuestion.correct_answer_index);
+      const finalScore = isActuallyCorrect 
         ? Math.round(((score + 1) / questions.length) * 100)
         : Math.round((score / questions.length) * 100);
       
@@ -55,7 +56,7 @@ export default function QuizSession({
       try {
         await submitQuizAttempt(materialId, finalScore, {
           totalQuestions: questions.length,
-          correctAnswers: selectedOption === currentQuestion.correct_answer_index ? score + 1 : score,
+          correctAnswers: isActuallyCorrect ? score + 1 : score,
         });
       } catch (err: any) {
         console.error('Failed to submit quiz:', err);
@@ -116,7 +117,7 @@ export default function QuizSession({
         <div className="flex flex-col gap-2">
           {currentQuestion.options.map((opt, idx) => {
             const isSelected = selectedOption === idx;
-            const isCorrect = idx === currentQuestion.correct_answer_index;
+            const isCorrect = idx === (currentQuestion.correctAnswer ?? currentQuestion.correct_answer_index);
 
             let borderClass = 'border-surface-border hover:border-zinc-500';
             let bgClass = 'bg-surface-raised';
