@@ -339,6 +339,14 @@ export async function processYoutubeUrl(url: string) {
     return { success: true, material };
   } catch (error: any) {
     console.error("YouTube Process Error:", error);
-    return { error: error.message || "Gagal memproses video YouTube. Pastikan video memiliki subtitle publik." };
+    let errorMessage = error.message || "Gagal memproses video YouTube. Pastikan video memiliki subtitle publik.";
+    
+    if (errorMessage.includes("Transcript is disabled")) {
+      errorMessage = "Pemilik video telah menonaktifkan fitur subtitle/teks (CC). AI membutuhkan video yang memiliki subtitle untuk dapat merangkumnya.";
+    } else if (errorMessage.includes("No transcripts were found") || errorMessage.includes("Could not find a transcript")) {
+      errorMessage = "Video ini tidak memiliki teks/subtitle otomatis. AI membutuhkan video yang mengandung percakapan yang bisa dibaca.";
+    }
+    
+    return { error: errorMessage };
   }
 }
