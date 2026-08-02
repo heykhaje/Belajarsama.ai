@@ -21,8 +21,17 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Belajarsama.ai',
-  description: 'Meja belajar digital untuk menandai, merangkum, dan menguasai materi.',
+  title: 'Belajar Sama AI | Meja Belajar Digital Cerdas',
+  description: 'Belajar sama AI mempermudah Anda merangkum PDF, membuat kuis otomatis, dan memahami materi dengan bantuan kecerdasan buatan (Google Gemini & Groq).',
+  keywords: ['belajar sama ai', 'ai belajar', 'merangkum pdf ai', 'kuis otomatis ai', 'meja belajar digital'],
+  openGraph: {
+    title: 'Belajar Sama AI | Meja Belajar Digital',
+    description: 'Platform cerdas untuk belajar sama AI. Rangkum PDF dan uji pemahaman dengan kuis instan.',
+    url: 'https://belajarsamaai.vercel.app',
+    siteName: 'Belajarsama.ai',
+    locale: 'id_ID',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

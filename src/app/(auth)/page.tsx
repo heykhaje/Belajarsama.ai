@@ -157,9 +157,9 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-surface-base relative z-10">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <h1 className="font-display text-4xl font-semibold text-ink-text mb-2 tracking-tight">Belajarsama.ai</h1>
+            <h1 className="font-display text-4xl font-semibold text-ink-text mb-2 tracking-tight">Belajar Sama AI</h1>
             <p className="text-ink-muted text-sm">
-              {isSignUp ? 'Buat akun baru untuk mulai belajar' : 'Sign in to your account'}
+              {isSignUp ? 'Buat akun baru untuk mulai belajar sama AI' : 'Sign in to your account'}
             </p>
           </div>
 
