@@ -2,6 +2,7 @@ import UploadPdfButton from '@/components/UploadPdfButton';
 import { getAllMaterials, getMaterialSummary } from '@/app/actions';
 import Link from 'next/link';
 import StreamingSummary from '@/components/StreamingSummary';
+import YoutubeInputButton from '@/components/YoutubeInputButton';
 import DeleteMaterialButton from '@/components/DeleteMaterialButton';
 import MaterialStatePreserver from './MaterialStatePreserver';
 import Image from 'next/image';
@@ -45,7 +46,10 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
       <div className={`w-full md:w-80 flex-col gap-3 overflow-y-auto md:pr-4 md:border-r border-surface-border shrink-0 ${selectedMaterial ? 'hidden md:flex' : 'flex'}`}>
         <div className="flex items-center justify-between mb-3">
           <h1 className="font-display text-lg font-semibold text-ink-text">My Learning</h1>
-          <UploadPdfButton />
+          <div className="flex gap-2">
+            <YoutubeInputButton />
+            <UploadPdfButton />
+          </div>
         </div>
 
         {materials && materials.length > 0 ? materials.map((m) => {

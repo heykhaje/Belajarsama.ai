@@ -1,8 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server';
-import { generateQuiz as geminiQuiz } from '@/lib/ai/gemini';
-import { generateSummary as groqSummary } from '@/lib/ai/groq';
+import { generateQuiz as groqQuiz } from '@/lib/ai/groq';
 import { revalidatePath } from 'next/cache';
 
 async function getAuth() {
@@ -25,7 +24,7 @@ export async function uploadMaterial(formData: FormData) {
   // 1. Extract text
   const pdfParse = require('pdf-parse');
   const pdfData = await pdfParse(buffer);
-  const extractedText = pdfData.text;
+  const extractedText = pdfData.text.replace(/\u0000/g, '').replace(/\x00/g, '');
 
     if (!extractedText || extractedText.trim() === '') {
       return { error: "Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar." };
@@ -108,7 +107,9 @@ export async function generateSummary(materialId: string) {
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
-  const summaryData = await groqSummary(material.extracted_text);
+  // Summary should be done via API route streaming now, but we keep this for backwards compatibility if needed.
+  // Although, groqSummary doesn't exist anymore, so we just throw.
+  throw new Error("Gunakan streaming API untuk merangkum.");
 
   const { error: summaryError } = await supabase
     .from('material_summaries')
@@ -130,7 +131,7 @@ export async function generateQuiz(materialId: string) {
   const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
   if (!material) throw new Error("Material not found");
 
-  const quizData = await geminiQuiz(material.extracted_text);
+  const quizData = await groqQuiz(material.extracted_text);
 
   const { data: quiz, error: quizError } = await supabase
     .from('quizzes')
@@ -313,4 +314,46 @@ export async function getAnalyticsData() {
   });
 
   return { lineData, barData, stats: { avgScore, totalQuiz, bestMaterial } };
+}
+
+export async function processYoutubeUrl(url: string) {
+  try {
+    const { supabase, user } = await getAuth();
+    if (!url) return { error: "URL tidak valid" };
+
+    const { YoutubeTranscript } = require('youtube-transcript');
+    const transcript = await YoutubeTranscript.fetchTranscript(url);
+    
+    if (!transcript || transcript.length === 0) {
+      return { error: "Tidak dapat menemukan transcript/subtitle pada video YouTube ini." };
+    }
+
+    let extractedText = transcript.map((t: any) => t.text).join(' ');
+    extractedText = extractedText.replace(/\u0000/g, '').replace(/\x00/g, '');
+
+    // Ambil title sederhana dari URL atau fallback
+    // Karena kita tidak memanggil YouTube API, title di-set generic atau kita biarkan pengguna rename nanti
+    const title = "YouTube Video - " + new URL(url).searchParams.get('v') || "Video YouTube";
+
+    const { data: material, error: dbError } = await supabase
+      .from('materials')
+      .insert({
+        user_id: user.id,
+        title: title,
+        pdf_url: url, // Reuse pdf_url for the source URL
+        extracted_text: extractedText,
+        status: 'new'
+      })
+      .select()
+      .single();
+
+    if (dbError) return { error: "Gagal menyimpan ke database: " + dbError.message };
+
+    const { revalidatePath } = require('next/cache');
+    revalidatePath('/my-learning');
+    return { success: true, material };
+  } catch (error: any) {
+    console.error("YouTube Process Error:", error);
+    return { error: error.message || "Gagal memproses video YouTube. Pastikan video memiliki subtitle publik." };
+  }
 }

@@ -2,13 +2,18 @@ import Groq from 'groq-sdk';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export async function generateSummary(text: string) {
-  const prompt = `Kamu adalah asisten belajar. Berdasarkan teks dokumen berikut, buat ringkasan poin-poin penting yang mudah dipelajari. Kelompokkan per bagian/bab jika dokumen panjang. Output HARUS murni JSON valid (tanpa markdown backticks) dengan format:
-{
-  "title": "Judul Materi",
-  "sections": [{ "heading": "Nama Bab", "key_points": ["poin 1", "poin 2"] }],
-  "overall_takeaways": ["kesimpulan 1", "kesimpulan 2"]
-}
+export async function generateQuiz(text: string) {
+  const prompt = `Kamu adalah seorang dosen yang membuat soal ujian. Berdasarkan HANYA isi teks dokumen di bawah ini, buat 20 soal pilihan ganda.
+Soal harus menguji pemahaman konsep, bukan sekadar hafalan. 
+Output HARUS murni JSON array valid (tanpa markdown backticks) dengan format:
+[
+  {
+    "question": "Pertanyaan...",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": 0,
+    "explanation": "Penjelasan mengapa jawaban tersebut benar"
+  }
+]
 
 Teks Dokumen:
 ${text}`;
@@ -21,10 +26,10 @@ ${text}`;
       temperature: 0.2, // Low temperature for more deterministic output
     });
 
-    const outputText = chatCompletion.choices[0]?.message?.content || '{}';
+    const outputText = chatCompletion.choices[0]?.message?.content || '[]';
     return JSON.parse(outputText);
   } catch (error: any) {
-    console.error("Error generating summary with Groq:", error);
-    throw new Error("Gagal membuat ringkasan dengan Groq: " + error.message);
+    console.error("Error generating quiz with Groq:", error);
+    throw new Error("Gagal membuat kuis dengan Groq: " + error.message);
   }
 }

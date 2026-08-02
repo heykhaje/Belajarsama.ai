@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
-import Groq from 'groq-sdk';
+import { GoogleGenAI } from '@google/genai';
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(req: Request) {
   try {
@@ -29,22 +29,21 @@ ATURAN KETAT:
 Dokumen yang harus dirangkum:
 ${material.extracted_text}`;
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: 'Kamu adalah asisten akademik. Kamu hanya menjawab dengan rangkuman materi tanpa basa-basi, tanpa emoji, dan tanpa komentar tambahan.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.15,
-      stream: true,
+    const responseStream = await ai.models.generateContentStream({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        temperature: 0.15,
+        systemInstruction: 'Kamu adalah asisten akademik. Kamu hanya menjawab dengan rangkuman materi tanpa basa-basi, tanpa emoji, dan tanpa komentar tambahan.',
+      }
     });
 
     const stream = new ReadableStream({
       async start(controller) {
         let fullText = '';
         try {
-          for await (const chunk of completion) {
-            const content = chunk.choices[0]?.delta?.content || '';
+          for await (const chunk of responseStream) {
+            const content = chunk.text || '';
             fullText += content;
             controller.enqueue(new TextEncoder().encode(content));
           }
