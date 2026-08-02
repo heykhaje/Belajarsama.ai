@@ -44,9 +44,9 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
       
       {/* List Pane - hidden on mobile if a material is selected */}
       <div className={`w-full md:w-80 flex-col gap-3 overflow-y-auto md:pr-4 md:border-r border-surface-border shrink-0 ${selectedMaterial ? 'hidden md:flex' : 'flex'}`}>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col gap-3 mb-5">
           <h1 className="font-display text-lg font-semibold text-ink-text">My Learning</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full [&>*]:flex-1 [&_button]:w-full [&_button]:justify-center">
             <YoutubeInputButton />
             <UploadPdfButton />
           </div>
