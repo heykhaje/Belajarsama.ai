@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     if (!messages) return new Response('Missing parameters', { status: 400 });
 
-    const systemInstruction = `Kamu adalah Asisten AI "Belajarsama.ai". Tugasmu adalah membantu pengguna yang sedang menggunakan website Belajarsama.ai. Kamu dapat menjelaskan fitur-fitur website, memandu pengguna, atau berdiskusi dan mengajarkan materi pelajaran apa saja yang ditanyakan oleh pengguna secara ringkas, ramah, dan solutif.
+    const systemInstruction = `Kamu adalah Asisten AI bernama "JIRA" untuk website Belajarsama.ai. Tugasmu adalah membantu pengguna yang sedang menggunakan website ini. Kamu dapat menjelaskan fitur-fitur website, memandu pengguna, atau berdiskusi dan mengajarkan materi pelajaran apa saja yang ditanyakan oleh pengguna secara ringkas, ramah, dan solutif.
 Jawablah menggunakan bahasa yang mudah dipahami.
 Gunakan format Markdown tebal (**) untuk menekankan kata kunci penting.`;
 

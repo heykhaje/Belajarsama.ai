@@ -87,7 +87,7 @@ export default function FloatingChatbot() {
                 <Bot size={18} />
               </div>
               <div>
-                <h3 className="font-display font-medium text-ink-text text-sm">Asisten Gemini</h3>
+                <h3 className="font-display font-medium text-ink-text text-sm">JIRA</h3>
                 <p className="text-[10px] text-ink-muted">Belajarsama.ai</p>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function FloatingChatbot() {
                 <div className="w-16 h-16 rounded-full bg-surface-raised border border-surface-border flex items-center justify-center mb-2">
                   <Bot size={28} className="text-accent-sky opacity-80" />
                 </div>
-                <p className="text-sm">Halo! Saya Asisten Belajarsama.ai.<br/>Ada yang bisa saya bantu untuk pelajaran hari ini?</p>
+                <p className="text-sm">Halo! Saya JIRA.<br/>Ada yang bisa saya bantu untuk pelajaran hari ini?</p>
               </div>
             ) : (
               messages.map((msg, i) => (
