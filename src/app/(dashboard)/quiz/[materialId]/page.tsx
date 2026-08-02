@@ -20,9 +20,18 @@ export default async function QuizPage({ params }: { params: Promise<{ materialI
     .limit(1)
     .single();
 
-  if (!existingQuiz) {
+  let qJson = existingQuiz?.questions_json;
+  let questions = Array.isArray(qJson) ? qJson : (qJson?.questions || []);
+
+  if (!existingQuiz || questions.length === 0) {
     try {
+      if (existingQuiz && questions.length === 0) {
+        // Delete the broken/empty quiz so we can regenerate properly
+        await supabase.from('quizzes').delete().eq('id', existingQuiz.id);
+      }
       existingQuiz = await generateQuiz(materialId);
+      qJson = existingQuiz?.questions_json;
+      questions = Array.isArray(qJson) ? qJson : (qJson?.questions || []);
     } catch (error: any) {
       return (
         <div className="min-h-[80vh]">
@@ -36,8 +45,6 @@ export default async function QuizPage({ params }: { params: Promise<{ materialI
       );
     }
   }
-
-  const questions = existingQuiz?.questions_json?.questions || [];
 
   if (questions.length === 0) {
     return (
