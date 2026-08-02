@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getTodaySchedules, getWeeklyProgress } from '@/app/actions';
+import { getUpcomingSchedules, getWeeklyProgress } from '@/app/actions';
 
 export default async function Dashboard() {
-  let todaySchedules: any[] = [];
+  let upcomingSchedules: any[] = [];
   let weeklyProgress = { quizCount: 0, avgScore: 0 };
   
   try {
-    todaySchedules = await getTodaySchedules() || [];
+    upcomingSchedules = await getUpcomingSchedules() || [];
   } catch (e) {
     console.error('[Dashboard] Failed to fetch schedules:', e);
   }
@@ -81,16 +81,16 @@ export default async function Dashboard() {
             <div className="flex items-center gap-2 mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-sky" />
               <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">
-                Jadwal Hari Ini
+                Jadwal Tersimpan
               </p>
             </div>
-            {todaySchedules && todaySchedules.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {todaySchedules.map((schedule: any) => (
+            {upcomingSchedules && upcomingSchedules.length > 0 ? (
+              <div className="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-2">
+                {upcomingSchedules.map((schedule: any) => (
                   <div key={schedule.id} className="flex justify-between items-center py-2 border-b border-surface-border/60 last:border-0">
-                    <span className="text-sm text-ink-text">{schedule.title}</span>
-                    <span className="text-ink-muted font-mono text-[11px] bg-surface-base px-2 py-1 rounded-md">
-                      {new Date(schedule.scheduled_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    <span className="text-sm text-ink-text line-clamp-1 mr-2">{schedule.title}</span>
+                    <span className="text-ink-muted font-mono text-[11px] bg-surface-base px-2 py-1 rounded-md whitespace-nowrap">
+                      {new Date(schedule.scheduled_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(schedule.scheduled_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 ))}

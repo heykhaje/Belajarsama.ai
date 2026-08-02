@@ -166,19 +166,16 @@ export async function createSchedule(data: { title: string, scheduled_at: string
   return true;
 }
 
-export async function getTodaySchedules() {
+export async function getUpcomingSchedules() {
   const { supabase, user } = await getAuth();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
 
   const { data, error } = await supabase
     .from('schedules')
     .select('*')
     .eq('user_id', user.id)
     .gte('scheduled_at', today.toISOString())
-    .lt('scheduled_at', tomorrow.toISOString())
     .order('scheduled_at', { ascending: true });
     
   if (error) throw new Error(error.message);
