@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
-import { Source_Sans_3, Crimson_Pro, IBM_Plex_Mono } from 'next/font/google';
+import { Montserrat, Petit_Formal_Script, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 
-const sourceSans3 = Source_Sans_3({
+const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-body',
 });
 
-const crimsonPro = Crimson_Pro({
+const petitFormal = Petit_Formal_Script({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400'],
   variable: '--font-display',
 });
 
@@ -41,7 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${sourceSans3.variable} ${crimsonPro.variable} ${ibmPlexMono.variable} font-body antialiased bg-surface-base text-ink-text`}>
+      <body className={`${montserrat.variable} ${petitFormal.variable} ${ibmPlexMono.variable} font-body antialiased bg-surface-base text-ink-text selection:bg-accent-sky/30 selection:text-white`}>
         {children}
       </body>
     </html>
