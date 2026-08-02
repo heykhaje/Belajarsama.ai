@@ -4,7 +4,6 @@ import Link from 'next/link';
 import StreamingSummary from '@/components/StreamingSummary';
 import DeleteMaterialButton from '@/components/DeleteMaterialButton';
 import MaterialStatePreserver from './MaterialStatePreserver';
-import MaterialChatbot from '@/components/MaterialChatbot';
 import Image from 'next/image';
 import { Suspense } from 'react';
 
@@ -132,21 +131,12 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
               }
               
               return (
-                <div className="w-full flex flex-col gap-6">
-                  <StreamingSummary 
-                    key={selectedMaterial.id}
-                    materialId={selectedMaterial.id} 
-                    initialSummaryText={summaryText}
-                    status={selectedMaterial.status}
-                  />
-                  
-                  {/* Chatbot Gemini terintegrasi di bawah materi */}
-                  {selectedMaterial.status !== 'new' && (
-                    <div className="w-full border-t border-surface-border/50 pt-6 mt-4">
-                      <MaterialChatbot materialId={selectedMaterial.id} />
-                    </div>
-                  )}
-                </div>
+                <StreamingSummary 
+                  key={selectedMaterial.id}
+                  materialId={selectedMaterial.id} 
+                  initialSummaryText={summaryText}
+                  status={selectedMaterial.status}
+                />
               );
             })()}
           </div>

@@ -1,4 +1,5 @@
 import Sidebar from '@/components/Sidebar';
+import FloatingChatbot from '@/components/FloatingChatbot';
 
 export default function DashboardLayout({
   children,
@@ -40,6 +41,7 @@ export default function DashboardLayout({
             </div>
           </div>
         </footer>
+        <FloatingChatbot />
       </main>
     </>
   );

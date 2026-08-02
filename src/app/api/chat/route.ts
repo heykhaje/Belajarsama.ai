@@ -1,27 +1,15 @@
-import { supabase } from '@/lib/supabase/client';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(req: Request) {
   try {
-    const { messages, materialId } = await req.json();
-    if (!messages || !materialId) return new Response('Missing parameters', { status: 400 });
+    const { messages } = await req.json();
+    if (!messages) return new Response('Missing parameters', { status: 400 });
 
-    const { data: material } = await supabase
-      .from('materials')
-      .select('title, extracted_text')
-      .eq('id', materialId)
-      .single();
-
-    if (!material) return new Response('Material not found', { status: 404 });
-
-    const systemInstruction = `Kamu adalah Asisten AI "Belajarsama.ai". Tugasmu adalah menjawab pertanyaan pengguna secara ringkas, ramah, dan solutif, berdasarkan HANYA pada konteks materi berikut ini.
-Jika pengguna bertanya tentang hal di luar materi ini, arahkan mereka kembali ke konteks materi dengan sopan. Jawablah menggunakan bahasa yang mudah dipahami.
-Gunakan format Markdown tebal (**) untuk menekankan kata kunci penting. JANGAN PERNAH menyarankan untuk membaca dokumen lain.
-
-Konteks Materi (${material.title}):
-${material.extracted_text}`;
+    const systemInstruction = `Kamu adalah Asisten AI "Belajarsama.ai". Tugasmu adalah membantu pengguna yang sedang menggunakan website Belajarsama.ai. Kamu dapat menjelaskan fitur-fitur website, memandu pengguna, atau berdiskusi dan mengajarkan materi pelajaran apa saja yang ditanyakan oleh pengguna secara ringkas, ramah, dan solutif.
+Jawablah menggunakan bahasa yang mudah dipahami.
+Gunakan format Markdown tebal (**) untuk menekankan kata kunci penting.`;
 
     let prompt = `${systemInstruction}\n\n`;
     for (const msg of messages) {
