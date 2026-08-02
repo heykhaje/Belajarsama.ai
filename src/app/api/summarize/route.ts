@@ -30,7 +30,7 @@ Dokumen yang harus dirangkum:
 ${material.extracted_text}`;
 
     const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: {
         temperature: 0.15,
