@@ -12,6 +12,7 @@
     "@ai-sdk/openai": "^4.0.24",
     "@ai-sdk/react": "^4.0.45",
     "@google/genai": "^2.14.0",
+    "@radix-ui/react-dialog": "^1.1.23",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
     "ai": "^7.0.42",

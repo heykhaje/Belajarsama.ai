@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { processYoutubeUrl } from '@/app/actions';
-import { Youtube, X } from 'lucide-react';
+import { PlaySquare, X } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 
 export default function YoutubeInputButton() {
@@ -35,7 +35,7 @@ export default function YoutubeInputButton() {
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Trigger asChild>
         <button className="btn-academic px-3.5 py-1.5 text-xs bg-red-600/10 text-red-600 hover:bg-red-600/20 border border-red-600/20 flex items-center gap-1 transition-colors">
-          <Youtube size={14} />
+          <PlaySquare size={14} />
           <span className="hidden sm:inline">+ YouTube</span>
         </button>
       </Dialog.Trigger>
