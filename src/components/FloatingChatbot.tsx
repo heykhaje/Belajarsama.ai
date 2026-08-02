@@ -114,11 +114,11 @@ export default function FloatingChatbot() {
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-accent-sky/20 text-accent-sky' : 'bg-surface-raised border border-surface-border text-ink-text'}`}>
                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                   </div>
-                  <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-accent-sky text-white rounded-tr-sm' : 'bg-surface-raised border border-surface-border text-ink-text rounded-tl-sm'}`}>
+                  <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-accent-sky text-white rounded-tr-sm' : 'bg-surface-raised border border-surface-border text-white rounded-tl-sm'}`}>
                     {msg.role === 'user' ? (
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                     ) : (
-                      <div className="prose prose-zinc prose-sm prose-p:leading-relaxed prose-pre:bg-surface-base prose-pre:border prose-pre:border-surface-border prose-strong:text-white max-w-none text-[13px]">
+                      <div className="prose prose-sm prose-p:leading-relaxed prose-pre:bg-surface-base prose-pre:border prose-pre:border-surface-border prose-p:text-white prose-li:text-white prose-strong:text-white prose-headings:text-white text-white max-w-none text-[13px]">
                         <ReactMarkdown>
                           {msg.content}
                         </ReactMarkdown>
