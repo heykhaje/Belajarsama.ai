@@ -26,10 +26,14 @@ export default function UploadPdfButton() {
     formData.append('file', file);
 
     try {
-      const material = await uploadMaterial(formData);
-      window.location.href = `/my-learning?id=${material.id}`;
+      const response = await uploadMaterial(formData);
+      if (response.error) {
+        alert(`Gagal mengunggah: ${response.error}`);
+      } else if (response.material) {
+        window.location.href = `/my-learning?id=${response.material.id}`;
+      }
     } catch (error: any) {
-      alert(`Gagal mengunggah: ${error.message}`);
+      alert(`Terjadi kesalahan tidak terduga: ${error.message}`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

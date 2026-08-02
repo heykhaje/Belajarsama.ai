@@ -15,9 +15,10 @@ async function getAuth() {
 }
 
 export async function uploadMaterial(formData: FormData) {
-  const { supabase, user } = await getAuth();
-  const file = formData.get('file') as File;
-  if (!file) throw new Error("File tidak ditemukan");
+  try {
+    const { supabase, user } = await getAuth();
+    const file = formData.get('file') as File;
+    if (!file) return { error: "File tidak ditemukan" };
 
   const buffer = Buffer.from(await file.arrayBuffer());
   
@@ -26,9 +27,9 @@ export async function uploadMaterial(formData: FormData) {
   const pdfData = await pdfParse(buffer);
   const extractedText = pdfData.text;
 
-  if (!extractedText || extractedText.trim() === '') {
-    throw new Error("Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar.");
-  }
+    if (!extractedText || extractedText.trim() === '') {
+      return { error: "Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar." };
+    }
 
   // 2. Upload to Supabase Storage
   const fileName = `${Date.now()}-${file.name}`;
@@ -36,7 +37,7 @@ export async function uploadMaterial(formData: FormData) {
     .from('materials')
     .upload(fileName, file);
     
-  if (uploadError) throw new Error("Gagal upload PDF ke storage: " + uploadError.message);
+    if (uploadError) return { error: "Gagal upload PDF ke storage: " + uploadError.message };
 
   const { data: publicUrlData } = supabase.storage.from('materials').getPublicUrl(fileName);
   const pdfUrl = publicUrlData.publicUrl;
@@ -54,10 +55,14 @@ export async function uploadMaterial(formData: FormData) {
     .select()
     .single();
 
-  if (dbError) throw new Error("Gagal menyimpan ke database: " + dbError.message);
+    if (dbError) return { error: "Gagal menyimpan ke database: " + dbError.message };
 
-  revalidatePath('/my-learning');
-  return material;
+    revalidatePath('/my-learning');
+    return { success: true, material };
+  } catch (error: any) {
+    console.error("Upload Error:", error);
+    return { error: error.message || "Terjadi kesalahan sistem saat memproses PDF" };
+  }
 }
 
 export async function deleteMaterial(materialId: string) {
