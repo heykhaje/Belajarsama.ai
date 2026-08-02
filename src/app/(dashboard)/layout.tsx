@@ -9,7 +9,7 @@ export default function DashboardLayout({
     <>
       <Sidebar />
       <main className="md:ml-14 pb-16 md:pb-0 min-h-screen flex flex-col">
-        <div className="flex-1 p-4 lg:p-8">
+        <div className="flex-1 w-full max-w-[1400px] mx-auto p-4 lg:p-8">
           {children}
         </div>
         <footer className="border-t border-surface-border px-6 lg:px-8 py-4">
