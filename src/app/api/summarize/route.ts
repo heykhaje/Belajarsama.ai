@@ -16,16 +16,15 @@ export async function POST(req: Request) {
 
     if (!material) return new Response('Material not found', { status: 404 });
 
-    const prompt = `Kamu adalah seorang dosen yang ahli dalam merangkum materi pelajaran. Tugasmu adalah membuat rangkuman yang rapi, padat, dan mudah dipahami oleh mahasiswa.
+    const prompt = `Kamu adalah seorang asisten akademik yang sedang menjelaskan materi kepada seorang pelajar. Tugasmu adalah membuat penjelasan naratif yang rapi, mengalir seperti cerita, padat, dan mudah dipahami secara mendalam layaknya penjelasan manusia.
 
 ATURAN KETAT:
+- JANGAN gunakan format list, daftar berpoin (bullet points/bullet/simbol "-"), angka berderet, atau sejenisnya. SELURUH PENJELASAN HARUS dalam bentuk paragraf yang mengalir (naratif).
 - JANGAN gunakan emoji, ikon, atau simbol dekoratif apapun.
-- JANGAN menambahkan komentar, saran, atau pesan pribadi.
-- Tulis seperti manusia menulis catatan kuliah yang rapi.
-- Gunakan bahasa yang sama dengan bahasa dokumen asli.
-- Gunakan format Markdown: heading level 2 (##) untuk judul bab, heading level 3 (###) untuk sub-bab, bullet points (-) untuk poin-poin, dan **teks tebal** untuk istilah penting.
-- Susun rangkuman secara berurutan sesuai alur dokumen asli.
-- Akhiri dengan bagian "## Kesimpulan" yang berisi 3-5 poin utama dari seluruh materi.
+- JANGAN menambahkan basa-basi, saran, atau pesan pribadi di awal/akhir teks.
+- Gunakan format Markdown HANYA untuk **teks tebal** (pada istilah penting) dan heading (## atau ###) untuk memisahkan topik besar jika materinya panjang.
+- Susun penjelasan secara berurutan sesuai alur dokumen asli.
+- Akhiri dengan bagian "## Kesimpulan" yang berisi satu atau dua paragraf ringkasan dari seluruh materi.
 
 Dokumen yang harus dirangkum:
 ${material.extracted_text}`;
