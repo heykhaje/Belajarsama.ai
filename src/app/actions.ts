@@ -19,27 +19,31 @@ export async function uploadMaterial(formData: FormData) {
     const file = formData.get('file') as File;
     if (!file) return { error: "File tidak ditemukan" };
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  
-  // 1. Extract text
-  const pdfParse = require('pdf-parse');
-  const pdfData = await pdfParse(buffer);
-  const extractedText = pdfData.text.replace(/\u0000/g, '').replace(/\x00/g, '');
-
-    if (!extractedText || extractedText.trim() === '') {
-      return { error: "Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar." };
-    }
-
-  // 2. Upload to Supabase Storage
+  // 1. Upload to Supabase Storage
   const fileName = `${Date.now()}-${file.name}`;
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('materials')
     .upload(fileName, file);
     
-    if (uploadError) return { error: "Gagal upload PDF ke storage: " + uploadError.message };
+  if (uploadError) return { error: "Gagal upload PDF ke storage: " + uploadError.message };
 
   const { data: publicUrlData } = supabase.storage.from('materials').getPublicUrl(fileName);
   const pdfUrl = publicUrlData.publicUrl;
+
+  // 2. Extract text
+  // Fetch pristine buffer from Supabase to prevent Next.js FormData mangling in Vercel
+  const pdfResponse = await fetch(pdfUrl);
+  const downloadedBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+
+  const pdfParse = require('pdf-parse');
+  const pdfData = await pdfParse(downloadedBuffer);
+  let extractedText = pdfData.text.replace(/\u0000/g, '').replace(/\x00/g, '');
+
+  if (!extractedText || extractedText.trim() === '') {
+    // Optionally remove from storage if extraction fails
+    await supabase.storage.from('materials').remove([fileName]);
+    return { error: "Gagal mengekstrak teks dari PDF. Pastikan PDF tidak hanya berisi gambar." };
+  }
 
   // 3. Simpan ke database
   const { data: material, error: dbError } = await supabase
