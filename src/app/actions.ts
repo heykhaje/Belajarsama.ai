@@ -103,27 +103,8 @@ export async function deleteMaterial(materialId: string) {
 }
 
 export async function generateSummary(materialId: string) {
-  const { supabase } = await getAuth();
-  const { data: material } = await supabase.from('materials').select('*').eq('id', materialId).single();
-  if (!material) throw new Error("Material not found");
-
-  // Summary should be done via API route streaming now, but we keep this for backwards compatibility if needed.
-  // Although, groqSummary doesn't exist anymore, so we just throw.
+  // Summary should be done via API route streaming now.
   throw new Error("Gunakan streaming API untuk merangkum.");
-
-  const { error: summaryError } = await supabase
-    .from('material_summaries')
-    .insert({
-      material_id: materialId,
-      summary_json: summaryData
-    });
-
-  if (summaryError) throw new Error("Gagal menyimpan ringkasan: " + summaryError.message);
-
-  await supabase.from('materials').update({ status: 'summarized' }).eq('id', materialId);
-  revalidatePath('/my-learning');
-  
-  return summaryData;
 }
 
 export async function generateQuiz(materialId: string) {
