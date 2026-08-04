@@ -174,106 +174,108 @@ export default function LoginPage() {
             )}
 
             {!isOtpSent ? (
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                
-                {isSignUp && (
-                  <>
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-ink-muted mb-1.5">Nama Lengkap</label>
-                      <input
-                        id="name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
-                        required={isSignUp}
-                        className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-3 text-ink-text focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/30 transition-all placeholder:text-ink-muted/50"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-ink-muted mb-1.5">Tanggal Lahir</label>
-                      <div className="flex gap-2">
-                        <select 
-                          value={dobDate}
-                          onChange={(e) => setDobDate(e.target.value)}
+              <>
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  
+                  {isSignUp && (
+                    <>
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-ink-muted mb-1.5">Nama Lengkap</label>
+                        <input
+                          id="name"
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="John Doe"
                           required={isSignUp}
-                          className="flex-1 bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
-                        >
-                          <option value="" disabled>Tgl</option>
-                          {days.map(d => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
-                        <select 
-                          value={dobMonth}
-                          onChange={(e) => setDobMonth(e.target.value)}
-                          required={isSignUp}
-                          className="flex-[2] bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
-                        >
-                          <option value="" disabled>Bulan</option>
-                          {months.map((m, i) => (
-                            <option key={m} value={i + 1}>{m}</option>
-                          ))}
-                        </select>
-                        <select 
-                          value={dobYear}
-                          onChange={(e) => setDobYear(e.target.value)}
-                          required={isSignUp}
-                          className="flex-[1.5] bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
-                        >
-                          <option value="" disabled>Tahun</option>
-                          {years.map(y => (
-                            <option key={y} value={y}>{y}</option>
-                          ))}
-                        </select>
+                          className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-3 text-ink-text focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/30 transition-all placeholder:text-ink-muted/50"
+                        />
                       </div>
-                    </div>
-                  </>
-                )}
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-ink-muted mb-1.5">Tanggal Lahir</label>
+                        <div className="flex gap-2">
+                          <select 
+                            value={dobDate}
+                            onChange={(e) => setDobDate(e.target.value)}
+                            required={isSignUp}
+                            className="flex-1 bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
+                          >
+                            <option value="" disabled>Tgl</option>
+                            {days.map(d => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                          <select 
+                            value={dobMonth}
+                            onChange={(e) => setDobMonth(e.target.value)}
+                            required={isSignUp}
+                            className="flex-[2] bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
+                          >
+                            <option value="" disabled>Bulan</option>
+                            {months.map((m, i) => (
+                              <option key={m} value={i + 1}>{m}</option>
+                            ))}
+                          </select>
+                          <select 
+                            value={dobYear}
+                            onChange={(e) => setDobYear(e.target.value)}
+                            required={isSignUp}
+                            className="flex-[1.5] bg-surface-base border border-surface-border rounded-lg px-3 py-3 text-ink-text focus:outline-none focus:border-accent-sky appearance-none text-sm"
+                          >
+                            <option value="" disabled>Tahun</option>
+                            {years.map(y => (
+                              <option key={y} value={y}>{y}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-ink-muted mb-1.5">Email address</label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-3 text-ink-text focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/30 transition-all placeholder:text-ink-muted/50"
-                  />
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-ink-muted mb-1.5">Email address</label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      className="w-full bg-surface-base border border-surface-border rounded-lg px-4 py-3 text-ink-text focus:outline-none focus:border-accent-sky focus:ring-1 focus:ring-accent-sky/30 transition-all placeholder:text-ink-muted/50"
+                    />
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={isLoading || !email || (isSignUp && (!name || !dobDate || !dobMonth || !dobYear))}
+                    className="w-full btn-academic py-3 flex justify-center items-center"
+                  >
+                    {isLoading ? 'Sending...' : 'Send Magic Code'}
+                  </button>
+                </form>
+
+                <div className="relative mt-6 mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-surface-border"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-surface-base text-ink-muted">atau</span>
+                  </div>
                 </div>
-                
+
                 <button
-                  type="submit"
-                  disabled={isLoading || !email || (isSignUp && (!name || !dobDate || !dobMonth || !dobYear))}
-                  className="w-full btn-academic py-3 flex justify-center items-center"
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                  className="w-full bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex justify-center items-center transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? 'Sending...' : 'Send Magic Code'}
+                  <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
+                    <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd"/>
+                  </svg>
+                  Sign in with Google
                 </button>
-              </form>
-
-              <div className="relative mt-6 mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-surface-border"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-surface-base text-ink-muted">atau</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGoogleLogin}
-                disabled={isLoading}
-                className="w-full bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex justify-center items-center transition-colors disabled:opacity-50"
-              >
-                <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
-                  <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd"/>
-                </svg>
-                Sign in with Google
-              </button>
+              </>
             ) : (
               <div className="space-y-6 bg-surface-raised border border-surface-border rounded-xl p-6 text-center animate-in fade-in zoom-in duration-300">
                 <div className="w-16 h-16 bg-accent-sky/10 text-accent-sky rounded-full flex items-center justify-center mx-auto mb-4">
