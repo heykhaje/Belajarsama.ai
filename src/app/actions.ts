@@ -68,6 +68,38 @@ export async function uploadMaterial(formData: FormData) {
   }
 }
 
+export async function uploadTextMaterial(data: { title: string, text: string }) {
+  try {
+    const { supabase, user } = await getAuth();
+    
+    if (!data.text || data.text.trim() === '') {
+      return { error: "Teks tidak boleh kosong" };
+    }
+    
+    const title = data.title || 'Materi Teks';
+
+    const { data: material, error: dbError } = await supabase
+      .from('materials')
+      .insert({
+        user_id: user.id,
+        title: title,
+        pdf_url: null,
+        extracted_text: data.text,
+        status: 'new'
+      })
+      .select()
+      .single();
+
+    if (dbError) return { error: "Gagal menyimpan ke database: " + dbError.message };
+
+    revalidatePath('/my-learning');
+    return { success: true, material };
+  } catch (error: any) {
+    console.error("Upload Text Error:", error);
+    return { error: error.message || "Terjadi kesalahan sistem saat menyimpan teks" };
+  }
+}
+
 export async function deleteMaterial(materialId: string) {
   const { supabase } = await getAuth();
   // 1. Dapatkan info materi untuk mengambil nama file di storage

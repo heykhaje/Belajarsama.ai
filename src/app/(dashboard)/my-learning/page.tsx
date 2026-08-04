@@ -1,4 +1,5 @@
 import UploadPdfButton from '@/components/UploadPdfButton';
+import AddTextButton from '@/components/AddTextButton';
 import { getAllMaterials, getMaterialSummary } from '@/app/actions';
 import Link from 'next/link';
 import StreamingSummary from '@/components/StreamingSummary';
@@ -45,8 +46,9 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
       <div className={`w-full md:w-80 flex-col gap-3 overflow-y-auto md:pr-4 md:border-r border-surface-border shrink-0 ${selectedMaterial ? 'hidden md:flex' : 'flex'}`}>
         <div className="flex flex-col gap-3 mb-5">
           <h1 className="font-display text-lg font-semibold text-ink-text">My Learning</h1>
-          <div className="flex w-full">
+          <div className="flex gap-2 w-full">
             <UploadPdfButton />
+            <AddTextButton />
           </div>
         </div>
 
