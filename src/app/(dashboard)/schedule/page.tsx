@@ -57,6 +57,24 @@ export default function Schedule() {
     }
   };
 
+  const getGoogleCalendarUrl = (title: string, dateStr: string) => {
+    const startDate = new Date(dateStr);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+    
+    // Format to YYYYMMDDTHHmmssZ
+    const formatGCalDate = (date: Date) => {
+      return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    };
+
+    const start = formatGCalDate(startDate);
+    const end = formatGCalDate(endDate);
+
+    const text = encodeURIComponent(`Belajar: ${title}`);
+    const details = encodeURIComponent('Jadwal belajar dari Belajarsama.ai');
+    
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}`;
+  };
+
   const handleCreateSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -175,7 +193,16 @@ export default function Schedule() {
                     <span className="font-mono text-[11px] text-ink-muted mt-0.5">{sDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
-                <button
+                <div className="flex flex-col sm:flex-row items-center gap-2">
+                  <a
+                    href={getGoogleCalendarUrl(s.title, s.scheduled_at)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider px-4 py-2 rounded-full transition-all bg-sky-50 text-sky-600 border border-sky-200 hover:bg-sky-100 hover:border-sky-300"
+                  >
+                    + Google Calendar
+                  </a>
+                  <button
                   onClick={async () => {
                     setDeletingId(s.id);
                     try {
@@ -196,6 +223,7 @@ export default function Schedule() {
                 >
                   {deletingId === s.id ? 'Menghapus...' : '✓ Sudah Selesai'}
                 </button>
+                </div>
               </div>
             )
           })

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getUpcomingSchedules, getWeeklyProgress } from '@/app/actions';
+import ScheduleTime from '@/components/ScheduleTime';
 
 export default async function Dashboard() {
   let upcomingSchedules: any[] = [];
@@ -90,7 +91,7 @@ export default async function Dashboard() {
                   <div key={schedule.id} className="flex justify-between items-center py-2 border-b border-surface-border/60 last:border-0">
                     <span className="text-sm text-ink-text line-clamp-1 mr-2">{schedule.title}</span>
                     <span className="text-ink-muted font-mono text-[11px] bg-surface-base px-2 py-1 rounded-md whitespace-nowrap">
-                      {new Date(schedule.scheduled_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(schedule.scheduled_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      <ScheduleTime dateString={schedule.scheduled_at} />
                     </span>
                   </div>
                 ))}
