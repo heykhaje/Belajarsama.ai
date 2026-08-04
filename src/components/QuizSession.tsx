@@ -29,6 +29,7 @@ export default function QuizSession({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const currentQuestion = questions[currentIndex];
+  const actualCorrectIndex = currentQuestion?.correctAnswer ?? currentQuestion?.correct_answer_index;
 
   const handleSelect = (index: number) => {
     if (isAnswered) return;
@@ -38,7 +39,7 @@ export default function QuizSession({
   const handleSubmitAnswer = () => {
     if (selectedOption === null) return;
     setIsAnswered(true);
-    if (selectedOption === currentQuestion.correct_answer_index) setScore(score + 1);
+    if (selectedOption === actualCorrectIndex) setScore(score + 1);
   };
 
   const handleNext = async () => {
@@ -48,7 +49,7 @@ export default function QuizSession({
       setIsAnswered(false);
     } else {
       // Quiz selesai — submit skor ke database
-      const isActuallyCorrect = selectedOption === (currentQuestion.correctAnswer ?? currentQuestion.correct_answer_index);
+      const isActuallyCorrect = selectedOption === actualCorrectIndex;
       const finalScore = isActuallyCorrect 
         ? Math.round(((score + 1) / questions.length) * 100)
         : Math.round((score / questions.length) * 100);
@@ -118,7 +119,7 @@ export default function QuizSession({
         <div className="flex flex-col gap-2">
           {currentQuestion.options.map((opt, idx) => {
             const isSelected = selectedOption === idx;
-            const isCorrect = idx === (currentQuestion.correctAnswer ?? currentQuestion.correct_answer_index);
+            const isCorrect = idx === actualCorrectIndex;
 
             let borderClass = 'border-surface-border hover:border-zinc-500';
             let bgClass = 'bg-surface-raised';
@@ -162,14 +163,14 @@ export default function QuizSession({
 
       {isAnswered && (
         <div className={`rounded-lg border p-4 mb-5 ${
-          selectedOption === currentQuestion.correct_answer_index
+          selectedOption === actualCorrectIndex
             ? 'bg-positive/10 border-positive'
             : 'bg-danger/10 border-danger'
         }`}>
           <p className={`font-mono text-[10px] uppercase tracking-[0.15em] mb-1 ${
-            selectedOption === currentQuestion.correct_answer_index ? 'text-positive' : 'text-danger'
+            selectedOption === actualCorrectIndex ? 'text-positive' : 'text-danger'
           }`}>
-            {selectedOption === currentQuestion.correct_answer_index ? 'Benar' : 'Belum Tepat'}
+            {selectedOption === actualCorrectIndex ? 'Benar' : 'Belum Tepat'}
           </p>
           <p className="text-xs text-ink-text leading-relaxed">{currentQuestion.explanation}</p>
         </div>
