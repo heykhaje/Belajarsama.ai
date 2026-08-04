@@ -4,7 +4,6 @@ import { getAllMaterials, getMaterialSummary } from '@/app/actions';
 import Link from 'next/link';
 import StreamingSummary from '@/components/StreamingSummary';
 import DeleteMaterialButton from '@/components/DeleteMaterialButton';
-import MaterialStatePreserver from './MaterialStatePreserver';
 import Image from 'next/image';
 import { Suspense } from 'react';
 
@@ -38,10 +37,6 @@ export default async function MyLearning({ searchParams }: { searchParams: Promi
 
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-8 h-[calc(100vh-4rem)]">
-      <Suspense fallback={null}>
-        <MaterialStatePreserver defaultId={materials?.[0]?.id} />
-      </Suspense>
-      
       {/* List Pane - hidden on mobile if a material is selected */}
       <div className={`w-full md:w-80 flex-col gap-3 overflow-y-auto md:pr-4 md:border-r border-surface-border shrink-0 ${selectedMaterial ? 'hidden md:flex' : 'flex'}`}>
         <div className="flex flex-col gap-3 mb-5">
